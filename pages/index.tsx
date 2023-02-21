@@ -7,7 +7,8 @@ import { Auth, ThemeSupa } from '@supabase/auth-ui-react'
 import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react'
 import styled from 'styled-components'
 import Image from 'next/image'
-import { useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { Database } from 'database.types'
 
 export default function Home() {
   const supabaseClient = useSupabaseClient()
@@ -37,20 +38,86 @@ export default function Home() {
         <Welcome>
           <Greet>Hello, {user.user_metadata.name}!</Greet>
           <StyledImage src={user.user_metadata.avatar_url} alt="" width={40} height={40} />
+          <Button onClick={onSignOut}>Log out</Button>
+          <Orders />
         </Welcome>
-        <Button onClick={onSignOut}>Log out</Button>
       </Main>
     </Container>
   )
 }
 
-const Greet = styled.span`
-  line-height: 40px;
-  vertical-align: middle;
+type OrderList = Database['public']['Tables']['OrderList']['Row']
+
+const Orders = () => {
+  const supabaseClient = useSupabaseClient<Database>()
+  const [orders, setOrders] = useState<OrderList[]>()
+
+  useEffect(() => {
+    (async function () {
+      const { data, error } = await supabaseClient
+        .from('OrderList')
+        .select()
+
+      if (!error) {
+        setOrders(data)
+      }
+    })()
+  }, [])
+
+  return <OrdersListsWrap>
+    {orders?.map(orderList => <OrderList key={orderList.id} {...orderList} />)}
+  </OrdersListsWrap>
+}
+
+const OrdersListsWrap = styled.div`
+  border: 1px solid #2c2c2c;
+  border-radius: 5px;
+  padding: 20px 20px 0;
+  font-size: 18px;
 `
+
+type UserInfo = { name: string, avatar_url: string }
+const OrderList = (props: OrderList) => {
+  const supabaseClient = useSupabaseClient<Database>()
+  const [user, setUser] = useState<UserInfo>()
+
+  useEffect(() => {
+    (async function () {
+      const { data, error } = await supabaseClient
+        .from('users')
+        .select('raw_user_meta_data->name, raw_user_meta_data->avatar_url')
+        .eq('id', props.createdBy)
+
+      if (!error) {
+        setUser(data[0] as UserInfo)
+      }
+    })()
+  }, [])
+
+  return <OrderListWrap>
+    {props.title} - {props.date} {user && `| by: ${user.name}`}
+    {user && <StyledImage src={user.avatar_url} alt="" width={20} height={20} />}
+  </OrderListWrap>
+}
 
 const StyledImage = styled(Image)`
   border-radius: 20px;
+`
+
+const OrderListWrap = styled.div`
+  margin: 0 0 20px;
+  border-bottom: 1px solid #3c3c3c;
+  line-height: 30px;
+  vertical-align: middle;
+
+  ${StyledImage} {
+    margin: 0 0 -2px 8px;
+  }
+`
+
+const Greet = styled.span`
+  line-height: 40px;
+  vertical-align: middle;
 `
 
 const Welcome = styled.div`
