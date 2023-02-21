@@ -2,13 +2,30 @@ import Head from 'next/head'
 import {
   Container,
   Main,
-  Title,
-  Description,
-  CodeTag,
 } from 'components/sharedstyles'
-import Cards from 'components/cards'
+import { Auth, ThemeSupa } from '@supabase/auth-ui-react'
+import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react'
+import styled from 'styled-components'
+import Image from 'next/image'
+import { useCallback, useEffect } from 'react'
 
 export default function Home() {
+  const supabaseClient = useSupabaseClient()
+  const user = useUser()
+  const userData = JSON.stringify(user)
+
+  useEffect(() => console.log(user), [userData])
+  const onSignOut = useCallback(() => supabaseClient.auth.signOut(), [supabaseClient])
+
+  if (!user) {
+    return <Auth
+      redirectTo="http://localhost:3000/"
+      appearance={{ theme: ThemeSupa }}
+      supabaseClient={supabaseClient}
+      providers={['github']}
+    />
+  }
+
   return (
     <Container>
       <Head>
@@ -17,17 +34,30 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Main>
-        <Title>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </Title>
-
-        <Description>
-          Get started by editing
-          <CodeTag>pages/index.tsx</CodeTag>
-        </Description>
-
-        <Cards />
+        <Welcome>
+          <Greet>Hello, {user.user_metadata.name}!</Greet>
+          <StyledImage src={user.user_metadata.avatar_url} alt="" width={40} height={40} />
+        </Welcome>
+        <Button onClick={onSignOut}>Log out</Button>
       </Main>
     </Container>
   )
 }
+
+const Greet = styled.span`
+  line-height: 40px;
+  vertical-align: middle;
+`
+
+const StyledImage = styled(Image)`
+  border-radius: 20px;
+`
+
+const Welcome = styled.div`
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  gap: 10px;
+`
+
+const Button = styled.button`
+`
