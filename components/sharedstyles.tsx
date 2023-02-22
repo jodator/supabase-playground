@@ -1,4 +1,6 @@
 import styled from 'styled-components'
+import Image from 'next/image'
+import Link from 'next/link'
 
 const Container = styled.div`
   padding: 0 0.5rem;
@@ -52,3 +54,15 @@ const CodeTag = styled.code`
 `
 
 export { Container, Main, Title, Description, CodeTag }
+export const StyledImage = styled(Image)`
+  border-radius: 20px;
+`
+export const StyledLink = styled(Link)`
+  text-decoration: underline;
+  font-weight: bold;
+  color: #444;
+
+  &:hover {
+    color: #777;
+  }
+`

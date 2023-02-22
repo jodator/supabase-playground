@@ -1,45 +1,12 @@
 import Head from 'next/head'
-import {
-  Container,
-  Main,
-} from 'components/sharedstyles'
-import { Auth, ThemeSupa } from '@supabase/auth-ui-react'
-import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react'
+import { Container, Main } from 'components/sharedstyles'
+import { useSupabaseClient } from '@supabase/auth-helpers-react'
 import styled from 'styled-components'
-import Image from 'next/image'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Database } from 'database.types'
-import Link from 'next/link'
-
-function UserBar() {
-  const supabaseClient = useSupabaseClient()
-  const user = useUser()
-  const userData = JSON.stringify(user)
-
-  useEffect(() => console.log(user), [userData])
-  const onSignOut = useCallback(() => supabaseClient.auth.signOut(), [supabaseClient])
-
-  if (!user) {
-
-    return <Welcome>
-      <Greet>Hello, stranger! Please Login:</Greet>
-      <Auth
-        redirectTo="http://localhost:3000/"
-        appearance={{ theme: ThemeSupa }}
-        supabaseClient={supabaseClient}
-        providers={['github']}
-        socialLayout="vertical"
-        onlyThirdPartyProviders={true}
-      />
-    </Welcome>
-  }
-
-  return <Welcome>
-    <Greet>Hello, {user.user_metadata.name}!</Greet>
-    <StyledImage src={user.user_metadata.avatar_url} alt="" width={40} height={40} />
-    <Button onClick={onSignOut}>Log out</Button>
-  </Welcome>
-}
+import { UserBar } from 'components/UserBar'
+import { OrderListRow } from 'types'
+import { OrderList } from 'components/OrdersList'
 
 export default function Home() {
   return (
@@ -57,11 +24,9 @@ export default function Home() {
   )
 }
 
-export type OrderList = Database['public']['Tables']['OrderList']['Row']
-
 const Orders = () => {
   const supabaseClient = useSupabaseClient<Database>()
-  const [orders, setOrders] = useState<OrderList[]>()
+  const [orders, setOrders] = useState<OrderListRow[]>()
 
   useEffect(() => {
     (async function () {
@@ -87,70 +52,3 @@ const OrdersListsWrap = styled.div`
   font-size: 18px;
 `
 
-type UserInfo = { name: string, avatar_url: string }
-const OrderList = (props: OrderList) => {
-  const supabaseClient = useSupabaseClient<Database>()
-  const [user, setUser] = useState<UserInfo>()
-
-  useEffect(() => {
-    (async function () {
-      const { data, error } = await supabaseClient
-        .from('users')
-        .select('raw_user_meta_data->name, raw_user_meta_data->avatar_url')
-        .eq('id', props.createdBy)
-
-      if (!error) {
-        setUser(data[0] as UserInfo)
-      }
-    })()
-  }, [])
-
-  return <OrderListWrap>
-    <StyledLink href={`/lists/${props.id}`}>{props.title}</StyledLink> - {props.date} {user && `| by: ${user.name}`}
-    {user && <StyledImage src={user.avatar_url} alt="" width={20} height={20} />}
-  </OrderListWrap>
-}
-
-const StyledImage = styled(Image)`
-  border-radius: 20px;
-`
-
-const OrderListWrap = styled.div`
-  margin: 0 0 20px;
-  line-height: 30px;
-  vertical-align: middle;
-
-  ${StyledImage} {
-    margin: 0 0 -2px 8px;
-  }
-`
-
-const Greet = styled.span`
-  display: flex;
-  align-items: center;
-`
-
-const Welcome = styled.div`
-  display: inline-grid;
-  grid-template-columns: auto auto auto;
-  gap: 10px;
-  margin-bottom: 20px;
-`
-
-const StyledLink = styled(Link)`
-  text-decoration: underline;
-  font-weight: bold;
-  color: #444;
-
-  &:hover {
-    color: #777;
-  }
-`
-
-const Button = styled.button`
-  border: 1px solid #2c2c2c;
-  background: #eee;
-  border-radius: 4px;
-  padding: 6px 4px;
-  line-height: 1em;
-`

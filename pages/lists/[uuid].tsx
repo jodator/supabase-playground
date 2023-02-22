@@ -4,8 +4,8 @@ import { Container, Main } from 'components/sharedstyles'
 import Head from 'next/head'
 import styled from 'styled-components'
 import { Database } from 'database.types'
-import { OrderList } from 'pages/index'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
+import { OrderList } from 'types'
 
 type PageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -36,7 +36,7 @@ export default function Home({ uuid }: PageProps) {
       </Head>
       <Main>
         <Welcome>
-          List: {order.title}
+          List: {order?.title}
         </Welcome>
       </Main>
     </Container>
