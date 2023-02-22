@@ -3,6 +3,7 @@ import { useCallback, useEffect } from 'react'
 import { Auth, ThemeSupa } from '@supabase/auth-ui-react'
 import styled from 'styled-components'
 import { StyledImage } from 'components/sharedstyles'
+import { Button } from 'components/Button'
 
 export function UserBar() {
   const supabaseClient = useSupabaseClient()
@@ -13,7 +14,6 @@ export function UserBar() {
   const onSignOut = useCallback(() => supabaseClient.auth.signOut(), [supabaseClient])
 
   if (!user) {
-
     return <Welcome>
       <Greet>Hello, stranger! Please Login:</Greet>
       <Auth
@@ -32,14 +32,6 @@ export function UserBar() {
     <Button onClick={onSignOut}>Log out</Button>
   </Welcome>
 }
-
-const Button = styled.button`
-  border: 1px solid #2c2c2c;
-  background: #eee;
-  border-radius: 4px;
-  padding: 6px 4px;
-  line-height: 1em;
-`
 
 const Greet = styled.span`
   display: flex;

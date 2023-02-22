@@ -1,18 +1,35 @@
-import { useSupabaseClient } from '@supabase/auth-helpers-react'
-import { useEffect, useState } from 'react'
-import { Container, Main } from 'components/sharedstyles'
+import { useSupabaseClient, useUser } from '@supabase/auth-helpers-react'
+import { useEffect, useReducer, useState } from 'react'
+import { Container, Main, StyledLink } from 'components/sharedstyles'
 import Head from 'next/head'
 import styled from 'styled-components'
 import { Database } from 'database.types'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
-import { OrderList } from 'types'
+import { OrderListRow } from 'types'
+import { Button } from 'components/Button'
 
 type PageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
+type FormAction = {
+  action: 'food',
+  data: string
+} | {
+  action: 'drink',
+  data: string
+} | {
+  action: 'reset'
+}
+
+interface FormData {
+  food: string | null
+  drink: string | null
+}
+
 export default function Home({ uuid }: PageProps) {
+  const user = useUser()
   const supabaseClient = useSupabaseClient<Database>()
 
-  const [order, setOrder] = useState<OrderList>()
+  const [order, setOrder] = useState<OrderListRow>()
   console.log(uuid, order)
 
   useEffect(() => {
@@ -28,6 +45,27 @@ export default function Home({ uuid }: PageProps) {
     })()
   }, [])
 
+  const [data, dispatch] = useReducer((prevState: FormData, action: FormAction) => {
+    if (action.action === 'food') {
+      return { ...prevState, food: action.data }
+    }
+
+    if (action.action === 'drink') {
+      return { ...prevState, drink: action.data }
+    }
+
+    if (action.action === 'reset') {
+      return { food: null, drink: null }
+    }
+  }, { food: null, drink: null })
+
+  const isAddDisabled = !data?.food || !data?.drink
+
+  const onSubmit = event => {
+    event.preventDefault()
+
+    dispatch({ action: 'reset' })
+  }
   return (
     <Container>
       <Head>
@@ -35,9 +73,55 @@ export default function Home({ uuid }: PageProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Main>
-        <Welcome>
+        <Wrap>
           List: {order?.title}
-        </Welcome>
+        </Wrap>
+        <Wrap>
+          <Table>
+            <Row>
+              <HeadCell>Lp.</HeadCell>
+              <HeadCell>Danie</HeadCell>
+              <HeadCell>Napój</HeadCell>
+              <HeadCell>Kto</HeadCell>
+            </Row>
+            <Row>
+              <Cell>a</Cell>
+              <Cell>Kurczak</Cell>
+              <Cell>Herbata zimowa</Cell>
+            </Row>
+            {!user && <StyledLink href="/">Go Home to login</StyledLink>}
+            {user &&
+              <form
+                onSubmit={onSubmit}
+              >
+                <Row>
+                  <Cell></Cell>
+                  <Cell>
+                    <input
+                      value={data?.food ?? ''}
+                      onInput={({ currentTarget }) => dispatch({
+                        action: 'food',
+                        data: currentTarget.value,
+                      })}
+                    />
+                  </Cell>
+                  <Cell>
+                    <input
+                      value={data?.drink ?? ''}
+                      onInput={({ currentTarget }) => dispatch({
+                        action: 'drink',
+                        data: currentTarget.value,
+                      })}
+                    />
+                  </Cell>
+                  <Cell>
+                    <Button type="submit" disabled={isAddDisabled}>Add</Button>
+                  </Cell>
+                </Row>
+              </form>
+            }
+          </Table>
+        </Wrap>
       </Main>
     </Container>
   )
@@ -59,8 +143,26 @@ export const getServerSideProps: GetServerSideProps<{ uuid: string }> = async ({
   }
 }
 
-const Welcome = styled.div`
-  display: inline-grid;
-  grid-template-columns: auto auto;
-  gap: 10px;
+const Table = styled.div`
+
+`
+
+const Row = styled.div`
+  display: grid;
+  grid-template-columns: 30px 200px 200px 100px;
+  border-bottom: 1px solid black;
+  padding: 14px 0;
+`
+
+const Cell = styled.div`
+  display: flex;
+  align-items: center;
+`
+
+const HeadCell = styled(Cell)`
+  font-weight: bold;
+`
+
+const Wrap = styled.div`
+
 `
