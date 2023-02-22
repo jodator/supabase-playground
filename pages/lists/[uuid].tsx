@@ -5,8 +5,9 @@ import Head from 'next/head'
 import styled from 'styled-components'
 import { Database } from 'database.types'
 import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
-import { OrderListRow } from 'types'
+import { OrderItemRow, OrderListRow } from 'types'
 import { Button } from 'components/Button'
+import { Owner } from 'components/Owner'
 
 type PageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -30,7 +31,7 @@ export default function Home({ uuid }: PageProps) {
   const supabaseClient = useSupabaseClient<Database>()
 
   const [order, setOrder] = useState<OrderListRow>()
-  console.log(uuid, order)
+  const [items, setItems] = useState<OrderItemRow[]>([])
 
   useEffect(() => {
     (async function () {
@@ -41,6 +42,23 @@ export default function Home({ uuid }: PageProps) {
 
       if (!error) {
         setOrder(data[0])
+      } else {
+        console.log(error)
+      }
+    })()
+  }, [])
+
+  useEffect(() => {
+    (async function () {
+      const { data, error } = await supabaseClient
+        .from('OrderItem')
+        .select()
+        .eq('listId', uuid)
+
+      if (!error) {
+        setItems(data)
+      } else {
+        console.log(error)
       }
     })()
   }, [])
@@ -61,11 +79,27 @@ export default function Home({ uuid }: PageProps) {
 
   const isAddDisabled = !data?.food || !data?.drink
 
+  const submitData = async () => {
+    try {
+      await supabaseClient.from('OrderItem').insert({
+        ...data,
+        createdBy: user.id,
+        listId: uuid,
+      })
+      console.log('done')
+    } catch (e) {
+      console.log(e)
+    }
+
+  }
+
   const onSubmit = event => {
     event.preventDefault()
-
-    dispatch({ action: 'reset' })
+    submitData().then(() => {
+      dispatch({ action: 'reset' })
+    })
   }
+
   return (
     <Container>
       <Head>
@@ -84,11 +118,13 @@ export default function Home({ uuid }: PageProps) {
               <HeadCell>Napój</HeadCell>
               <HeadCell>Kto</HeadCell>
             </Row>
-            <Row>
-              <Cell>a</Cell>
-              <Cell>Kurczak</Cell>
-              <Cell>Herbata zimowa</Cell>
-            </Row>
+            {items.map((item, idx) =>
+              <Row key={item.id}>
+                <Cell>{idx + 1}</Cell>
+                <Cell>{item.food}</Cell>
+                <Cell>{item.drink}</Cell>
+                <Cell><Owner who={item.createdBy} /></Cell>
+              </Row>)}
             {!user && <StyledLink href="/">Go Home to login</StyledLink>}
             {user &&
               <form

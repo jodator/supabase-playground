@@ -11,17 +11,20 @@ datasource db {
 }
 
 model OrderList {
-    id         String   @id @db.Uuid @default(uuid())
-    title      String   @db.VarChar(200)
-    date       DateTime @db.Date
-    createdAt  DateTime @default(now())
-    createdBy  String   @db.Uuid
+    id         String       @id @db.Uuid @default(uuid())
+    title      String       @db.VarChar(200)
+    date       DateTime     @db.Date
+    createdAt  DateTime     @default(now())
+    createdBy  String       @db.Uuid
+    Items      OrderItem[]
 }
 
 model OrderItem {
-    id         String   @id @db.Uuid @default(uuid())
-    food      String   @db.VarChar(200)
-    drink      String   @db.VarChar(200)
-    createdAt  DateTime @default(now())
-    createdBy  String   @db.Uuid
+    id         Int          @id @default(autoincrement())
+    food       String       @db.VarChar(200)
+    drink      String       @db.VarChar(200)
+    createdAt  DateTime     @default(now())
+    createdBy  String       @db.Uuid
+    list       OrderList    @relation(fields: [listId], references: [id])
+    listId     String       @db.Uuid
 }

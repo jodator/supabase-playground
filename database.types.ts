@@ -72,21 +72,24 @@ export interface Database {
           createdBy: string
           drink: string
           food: string
-          id: string
+          id: number
+          listId: string
         }
         Insert: {
           createdAt?: string
           createdBy: string
           drink: string
           food: string
-          id: string
+          id?: number
+          listId: string
         }
         Update: {
           createdAt?: string
           createdBy?: string
           drink?: string
           food?: string
-          id?: string
+          id?: number
+          listId?: string
         }
       }
       OrderList: {
