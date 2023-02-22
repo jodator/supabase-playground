@@ -17,3 +17,11 @@ model OrderList {
     createdAt  DateTime @default(now())
     createdBy  String   @db.Uuid
 }
+
+model OrderItem {
+    id         String   @id @db.Uuid @default(uuid())
+    food      String   @db.VarChar(200)
+    drink      String   @db.VarChar(200)
+    createdAt  DateTime @default(now())
+    createdBy  String   @db.Uuid
+}

@@ -66,6 +66,29 @@ export interface Database {
           started_at?: string
         }
       }
+      OrderItem: {
+        Row: {
+          createdAt: string
+          createdBy: string
+          drink: string
+          food: string
+          id: string
+        }
+        Insert: {
+          createdAt?: string
+          createdBy: string
+          drink: string
+          food: string
+          id: string
+        }
+        Update: {
+          createdAt?: string
+          createdBy?: string
+          drink?: string
+          food?: string
+          id?: string
+        }
+      }
       OrderList: {
         Row: {
           createdAt: string
