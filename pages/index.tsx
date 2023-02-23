@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import { Container, Main } from 'components/sharedstyles'
+import { Cell, Container, HeadCell, ListTitle, Main, Row, Table } from 'components/sharedstyles'
 import { useSupabaseClient } from '@supabase/auth-helpers-react'
 import styled from 'styled-components'
 import { useEffect, useState } from 'react'
@@ -18,6 +18,7 @@ export default function Home() {
       </Head>
       <Main>
         <UserBar />
+        <ListTitle>Orders</ListTitle>
         <Orders />
       </Main>
     </Container>
@@ -40,15 +41,22 @@ const Orders = () => {
     })()
   }, [])
 
-  return <OrdersListsWrap>
+  return <OrdersTable>
+    <Row>
+      <HeadCell>List</HeadCell>
+      <HeadCell>Owner</HeadCell>
+    </Row>
     {orders?.map(orderList => <OrderList key={orderList.id} {...orderList} />)}
-  </OrdersListsWrap>
+  </OrdersTable>
 }
 
-const OrdersListsWrap = styled.div`
-  border: 1px solid #2c2c2c;
-  border-radius: 5px;
-  padding: 20px 20px 0;
-  font-size: 18px;
+const OrdersTable = styled(Table)`
+  ${Row} {
+    grid-template-columns: auto 160px;
+  }
+
+  ${Cell}:last-of-type {
+    justify-content: flex-end;
+  }
 `
 

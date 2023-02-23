@@ -66,3 +66,25 @@ export const StyledLink = styled(Link)`
     color: #777;
   }
 `
+export const Table = styled.div`
+  width: 600px
+`
+export const Row = styled.div`
+  display: grid;
+  grid-template-columns: 30px 1fr 1fr 120px;
+  border-bottom: 1px solid black;
+  padding: 14px 0;
+`
+export const Cell = styled.div`
+  display: flex;
+  align-items: center;
+`
+export const HeadCell = styled(Cell)`
+  font-weight: bold;
+`
+export const ListTitle = styled.h2`
+  font-size: 20px;
+  font-weight: bold;
+  width: 100%;
+  margin: 20px 0;
+`
