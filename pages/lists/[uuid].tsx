@@ -8,6 +8,7 @@ import { GetServerSideProps, InferGetServerSidePropsType } from 'next'
 import { OrderItemRow, OrderListRow } from 'types'
 import { Button } from 'components/Button'
 import { Owner } from 'components/Owner'
+import { OnlineUsers } from 'components/OnlineUsers'
 
 type PageProps = InferGetServerSidePropsType<typeof getServerSideProps>
 
@@ -107,9 +108,10 @@ export default function Home({ uuid }: PageProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Main>
-        <Wrap>
-          List: {order?.title}
-        </Wrap>
+        <ListTitle>
+          List: "{order?.title}" on {order?.date}
+        </ListTitle>
+        <OnlineUsers channelID={uuid} />
         <Wrap>
           <Table>
             <Row>
@@ -178,6 +180,13 @@ export const getServerSideProps: GetServerSideProps<{ uuid: string }> = async ({
     },
   }
 }
+
+const ListTitle = styled.div`
+  font-size: 20px;
+  font-weight: bold;
+  width: 100%;
+  margin: 20px 0;
+`
 
 const Table = styled.div`
 
