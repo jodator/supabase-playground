@@ -3,6 +3,7 @@ import { Database } from 'database.types'
 import { useReducer } from 'react'
 import { Cell, Row, StyledLink } from 'components/sharedstyles'
 import { Button } from 'components/Button'
+import styled from 'styled-components'
 
 type FormAction = {
   action: 'food',
@@ -67,7 +68,7 @@ export function EntryForm({ listId }: { listId: string }) {
         <Row>
           <Cell></Cell>
           <Cell>
-            <input
+            <Input
               value={data?.food ?? ''}
               onInput={({ currentTarget }) => dispatch({
                 action: 'food',
@@ -76,7 +77,7 @@ export function EntryForm({ listId }: { listId: string }) {
             />
           </Cell>
           <Cell>
-            <input
+            <Input
               value={data?.drink ?? ''}
               onInput={({ currentTarget }) => dispatch({
                 action: 'drink',
@@ -91,3 +92,11 @@ export function EntryForm({ listId }: { listId: string }) {
       </form>}
   </>)
 }
+
+const Input = styled.input`
+  font-size: 16px;
+  padding: 10px;
+  line-height: 16px;
+  border: 1px solid #777;
+  border-radius: 4px;
+`

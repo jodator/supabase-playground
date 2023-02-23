@@ -21,7 +21,7 @@ export function UserBar() {
         supabaseClient={supabaseClient}
         providers={['github']}
         socialLayout="vertical"
-        onlyThirdPartyProviders={true}
+        onlyThirdPartyProviders
       />
     </Welcome>
   }
